@@ -1,6 +1,7 @@
 const express=require("express");
 const multer = require("multer");
-const upload =multer({storage});
+const path=require("path");
+const tokenGenerator=require("./auth_token");
 
 const app=express();
 const storage = multer.diskStorage({
@@ -14,11 +15,19 @@ const storage = multer.diskStorage({
     },
   })
 
+const upload =multer({storage});
+
+app.use(express.static(path.join(__dirname, 'public')));
+
+
 app.get("/",(req,res)=>{
-    res.send("home page");
+    res.render("./index.html");
 })
 
+
 app.post("/api.symbl.ai/v1/process/audio",upload.single('file'),(req,res)=>{
+    const authToken=tokenGenerator();
+    res.set('Authorization', `Bearer ${authToken}`);
     console.log(req.body);
     console.log(req.file);
     res.send("successfully uploaded the file");
